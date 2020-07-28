@@ -45,6 +45,11 @@
       #messages li:nth-child(odd) {
         background: #eee;
       }
+      #text,
+      #output {
+        font-family: Typewriter;
+        font-weight: 100;
+      }
     </style>
   </head>
   <body>
@@ -84,8 +89,14 @@
 
         //EVENTS
         $(document).on("keydown", (e) => {
-          socket.emit("output", e.key);
+          if (isValidKey(e.key)) socket.emit("output", e.key);
         });
+
+        //HELPERS
+        function isValidKey(key) {
+          if (key === "Backspace" || key.length === 1) return true;
+          return false;
+        }
       });
     </script>
   </body>

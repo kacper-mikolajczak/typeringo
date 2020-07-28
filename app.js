@@ -12,6 +12,13 @@ const textRange = 5;
 const delay = 5000;
 var currentText = "";
 
+//KeyboardMaps
+function mapKey(key, str) {
+  if (key === "Backspace") return str.substr(0, str.length - 1);
+  else if (key.length === 1) return str + key;
+  else return str;
+}
+
 const textGenerator = (range, alphabet) => {
   return new Array(Math.floor(Math.random() * range + 5))
     .fill(0)
@@ -34,6 +41,8 @@ const textIntervalGenerator = (delay) => {
 
 var textInterval = textIntervalGenerator(delay);
 
+const users = [];
+
 var clientsOutputs = {};
 
 app.use(express.static("static"));
@@ -42,8 +51,18 @@ app.get("/", (req, res) => {
   res.redirect("/home");
 });
 
+function assignUniqueNickname(userNickname) {
+  if (userNickname.length === 0) userNickname = "Guest";
+  while (users.some((user) => user.nickname === userNickname)) {
+    userNickname += Math.floor(Math.random() * 9 + 1);
+  }
+  return userNickname;
+}
+
 app.get("/game", (req, res) => {
-  res.sendFile(`${__dirname}/index.html`);
+  const userNickname = assignUniqueNickname(req.query.nickname);
+  console.log(userNickname);
+  res.sendFile(`${__dirname}/client/game.html`);
 });
 
 app.get("/home", (req, res) => {
@@ -55,10 +74,7 @@ io.on("connection", (socket) => {
 
   socket.on("output", (val) => {
     const output = clientsOutputs[socket.id];
-    clientsOutputs[socket.id] =
-      val !== "Backspace"
-        ? output + val[0]
-        : output.substr(output, output.length - 1);
+    clientsOutputs[socket.id] = mapKey(val, output);
     socket.emit("output", clientsOutputs[socket.id]);
 
     if (clientsOutputs[socket.id] === currentText) {

@@ -9,6 +9,8 @@
       .title {
         margin: 5% auto 0 auto;
         text-align: center;
+        font-family: Typewriter;
+        font-weight: 100;
       }
       .title::after {
         content: "";
@@ -31,7 +33,12 @@
       <div class="content">
         <h2 class="title" id="title"></h2>
         <p class="subtitle" id="subtitle">Please set your nickname:</p>
-        <form class="nicknameForm" id="nicknameForm" action="/game">
+        <form
+          class="nicknameForm"
+          id="nicknameForm"
+          action="/game"
+          method="GET"
+        >
           <input id="nicknameInput" name="nickname" type="text" />
           <input id="nicknameSubmit" type="submit" value="Let's play!" />
         </form>

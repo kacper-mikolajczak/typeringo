@@ -1,9 +1,14 @@
 * {
   box-sizing: border-box;
 }
+@font-face {
+  font-family: Typewriter;
+  src: url("../fonts/ATypewriterForMe.ttf");
+}
 :root {
   --primary: black;
   --secondary: white;
+  font-family: Typewriter;
 }
 .dark {
   --primary: white;
