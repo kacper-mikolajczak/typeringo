@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Play Typeringo!</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <style>
+      .title {
+        margin: 5% auto 0 auto;
+        text-align: center;
+      }
+      .title::after {
+        content: "";
+        outline: 1px solid var(--primary);
+        position: relative;
+      }
+
+      .content {
+        width: 50%;
+        text-align: center;
+      }
+      .content > * {
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body class="">
+    <button id="toggleDark">Toggle Dark Theme</button>
+    <div class="container">
+      <div class="content">
+        <h2 class="title" id="title"></h2>
+        <p class="subtitle" id="subtitle">Please set your nickname:</p>
+        <form class="nicknameForm" id="nicknameForm" action="/game">
+          <input id="nicknameInput" name="nickname" type="text" />
+          <input id="nicknameSubmit" type="submit" value="Let's play!" />
+        </form>
+      </div>
+    </div>
+    <script>
+      //CONSTANTS
+      const titleValue = "Welcome in Typeringo";
+
+      //FLAGS
+
+      //REFERENCES
+      const body = document.querySelector("body");
+      const darkBtn = document.querySelector("button#toggleDark");
+      const title = document.querySelector("h2#title");
+
+      //EVENTS
+      darkBtn.addEventListener("click", (e) => {
+        body.classList.toggle("dark");
+      });
+
+      window.onload = () => {
+        function animateText(current, formula) {
+          if (current.length === formula.length)
+            return current.substr(
+              0,
+              Math.floor(Math.random() * formula.length - 4)
+            );
+          else if (current.length === 0) return formula.substr(0, 1);
+          else
+            return Math.random() > 0.2
+              ? current + formula[current.length]
+              : current.substr(0, current.length - 1);
+        }
+
+        const titleAnimInterval = setInterval(() => {
+          title.textContent = animateText(
+            title.textContent ? title.textContent : "",
+            titleValue
+          );
+        }, 300);
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+* {
+  box-sizing: border-box;
+}
+:root {
+  --primary: black;
+  --secondary: white;
+}
+.dark {
+  --primary: white;
+  --secondary: #222;
+}
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--secondary);
+  color: var(--primary);
+  transition: background-color 0.5s;
+}
+
+.container {
+  width: 80vw;
+  min-width: 480px;
+  height: 100vh;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+}
