@@ -1,4 +1,5 @@
-const app = require("express")();
+const express = require("express");
+const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
@@ -7,7 +8,7 @@ const PORT = process.env.PORT || 5000;
 
 //Custom Variables
 const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
-const textRange = 0;
+const textRange = 5;
 const delay = 5000;
 var currentText = "";
 
@@ -35,8 +36,18 @@ var textInterval = textIntervalGenerator(delay);
 
 var clientsOutputs = {};
 
+app.use(express.static("static"));
+
 app.get("/", (req, res) => {
+  res.redirect("/home");
+});
+
+app.get("/game", (req, res) => {
   res.sendFile(`${__dirname}/index.html`);
+});
+
+app.get("/home", (req, res) => {
+  res.sendFile(`${__dirname}/client/home.html`);
 });
 
 io.on("connection", (socket) => {
