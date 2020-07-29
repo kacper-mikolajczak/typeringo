@@ -6,14 +6,12 @@
     <script>
       var socket = io();
     </script>
+    <link rel="stylesheet" href="./css/styles.css" />
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-      }
-      body {
-        font: 13px Helvetica, Arial;
       }
       form {
         background: #000;
@@ -57,7 +55,6 @@
     <h2>Current text is...</h2>
     <span id="text"></span>
     <span id="output"></span>
-    <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script>
       $(function () {
@@ -65,7 +62,6 @@
         var currentOutput = "";
 
         //SOCKET
-        var socket = io();
         socket.on("chat message", (msg) => {
           $("#messages").append(`<li>${msg}</li>`);
         });

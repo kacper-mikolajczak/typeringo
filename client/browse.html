@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browse Rooms</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <style>
+      #roomsTable {
+        width: 400px;
+      }
+      th {
+        font-size: 1.3em;
+      }
+      table,
+      th,
+      td {
+        border: 0px solid black;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>List of rooms:</h3>
+    <table id="roomsTable">
+      <thead>
+        <tr>
+          <td>#</td>
+          <td>Name</td>
+          <td>Owner</td>
+          <td>Players</td>
+          <td></td>
+        </tr>
+      </thead>
+      <tbody id="roomsTableBody"></tbody>
+    </table>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"
+      integrity="sha512-VZ6m0F78+yo3sbu48gElK4irv2dzPoep8oo9LEjxviigcnnnNvnTOJRSrIhuFk68FMLOpiNz+T77nNY89rnWDg=="
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="./scripts/animations.js"></script>
+    <script>
+      //API
+      async function getRooms() {
+        const res = await axios("/rooms");
+        return res.data;
+      }
+      //REFERENCES
+      const roomsTableBody = document.querySelector("tbody#roomsTableBody");
+
+      window.onload = async () => {
+        const rooms = await getRooms();
+
+        const rows = rooms
+          .map(
+            (room) =>
+              `<tr>${Object.values(room)
+                .map((v) => `<td>${v}</td>`)
+                .join("")}</tr>`
+          )
+          .join("");
+
+        roomsTableBody.innerHTML = rows;
+      };
+    </script>
+  </body>
+</html>

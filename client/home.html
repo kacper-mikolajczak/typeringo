@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script src="/socket.io/socket.io.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Play Typeringo!</title>
@@ -32,21 +33,24 @@
     <div class="container">
       <div class="content">
         <h2 class="title" id="title"></h2>
-        <p class="subtitle" id="subtitle">Please set your nickname:</p>
+        <p class="subtitle" id="subtitle">
+          Click below and start typing!
+        </p>
         <form
           class="nicknameForm"
           id="nicknameForm"
-          action="/game"
+          action="/browse"
           method="GET"
         >
-          <input id="nicknameInput" name="nickname" type="text" />
+          <!-- <input id="nicknameInput" name="nickname" type="text" /> -->
           <input id="nicknameSubmit" type="submit" value="Let's play!" />
         </form>
       </div>
     </div>
+    <script src="./scripts/animations.js"></script>
     <script>
       //CONSTANTS
-      const titleValue = "Welcome in Typeringo";
+      const titleValue = "Welcome in Typeringo!";
 
       //FLAGS
 
@@ -60,26 +64,16 @@
         body.classList.toggle("dark");
       });
 
-      window.onload = () => {
-        function animateText(current, formula) {
-          if (current.length === formula.length)
-            return current.substr(
-              0,
-              Math.floor(Math.random() * formula.length - 4)
-            );
-          else if (current.length === 0) return formula.substr(0, 1);
-          else
-            return Math.random() > 0.2
-              ? current + formula[current.length]
-              : current.substr(0, current.length - 1);
-        }
+      //SOCKETS
+      const socket = io();
 
-        const titleAnimInterval = setInterval(() => {
-          title.textContent = animateText(
-            title.textContent ? title.textContent : "",
-            titleValue
-          );
-        }, 300);
+      window.onload = () => {
+        const titleInterval = animateTextInterval(
+          animateTextWithMispelling,
+          title,
+          titleValue,
+          250
+        );
       };
     </script>
   </body>
