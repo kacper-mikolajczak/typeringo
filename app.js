@@ -40,6 +40,9 @@ const textRange = 5;
 const delay = 5000;
 
 const textEmitter = (id, generator) => {
+  for (const playerId of rooms[id].players) {
+    players[playerId].text = "";
+  }
   rooms[id].text = generator(textRange);
   io.to(id).emit("text", rooms[id].text);
   console.log("Sent text:", rooms[id].text);
