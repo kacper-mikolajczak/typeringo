@@ -51,10 +51,17 @@
     </style>
   </head>
   <body>
-    <h1 id="gameoverInfo"></h1>
-    <h2>Current text is...</h2>
-    <span id="text"></span>
-    <span id="output"></span>
+    <div id="toggleDark" class="themeDot"></div>
+    <div class="center">
+      <div>
+        <h1 id="gameoverInfo"></h1>
+        <h2>Current text is...</h2>
+        <span id="text"></span>
+        <p id="output"></p>
+      </div>
+    </div>
+
+    <script src="./scripts/themes.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script>
       $(function () {
@@ -82,6 +89,14 @@
           $("#gameoverInfo").html(`<h1>You Lost!</h1><p>Winner: ${winner}`);
           currentOutput = "";
         });
+        function getIdFromSearchParams() {
+          const query = window.location.search.substr(1);
+          const parts = query.split("&");
+          return parts
+            .filter((part) => part.split("=")[0] === "id")[0]
+            .split("=")[1];
+        }
+        socket.emit("user_join", getIdFromSearchParams());
 
         //EVENTS
         $(document).on("keydown", (e) => {

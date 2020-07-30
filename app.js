@@ -19,12 +19,12 @@ export const textGenerator = (range) => {
     .join("");
 };
 
-export function assignUniqueNickname(userNickname) {
-  if (!userNickname || userNickname.length === 0) userNickname = "Guest";
-  while (users.some((user) => user.nickname === userNickname)) {
-    userNickname += Math.floor(Math.random() * 9 + 1);
+export function assignUniqueNickname(PlayerNickname) {
+  if (!PlayerNickname || PlayerNickname.length === 0) PlayerNickname = "Guest";
+  while (players.some((Player) => Player.nickname === PlayerNickname)) {
+    PlayerNickname += Math.floor(Math.random() * 9 + 1);
   }
-  return userNickname;
+  return PlayerNickname;
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -38,29 +38,71 @@ const PORT = process.env.PORT || 5000;
 //Custom Variables
 const textRange = 5;
 const delay = 5000;
-var currentText = "";
 
-const textEmitter = (generator) => {
-  for (const client in clientsOutputs) clientsOutputs[client] = "";
-  currentText = generator(textRange);
-  io.emit("text", currentText);
-  console.log("Sent text:", currentText);
+const textEmitter = (id, generator) => {
+  rooms[id].text = generator(textRange);
+  io.to(id).emit("text", rooms[id].text);
+  console.log("Sent text:", rooms[id].text);
 };
 
-const textIntervalGenerator = (generator, delay) => {
+const textIntervalGenerator = (id, generator, delay) => {
   return setInterval(() => {
-    textEmitter(generator);
+    textEmitter(id, generator);
   }, delay);
 };
 
-var textInterval = textIntervalGenerator(textGenerator, delay);
+//DATA
 
-const users = [];
+/* Player structure:
+  id: number;?
+  socket: Socket;
+  name: string;
+  text: string;
+  room: Room.id;
+*/
+let playerId = 1;
+const players = {};
 
-var clientsOutputs = {};
+function playerCreate(id, name, roomId) {
+  players[id] = {
+    id,
+    name,
+    text: "",
+    room: roomId,
+  };
+}
 
+/* Room structure:
+  id: number;
+  name: string;
+  owner: string;
+  players: Player[];
+  text: string;
+  textInterval: Interval;
+*/
+let roomsId = 0;
+const rooms = {};
+
+function roomCreate(id, name) {
+  rooms[id] = {
+    id,
+    name,
+    owner: "",
+    players: [],
+    text: "",
+    textInterval: textIntervalGenerator(id, textGenerator, 5000),
+  };
+}
+function roomAddPlayer(id, playerId) {
+  rooms[id].players.push(playerId);
+}
+
+//MIDDLEWARES
 app.use(express.static("static"));
+app.use(express.urlencoded());
+app.use(express.json());
 
+//ROUTES
 app.get("/", (req, res) => {
   res.redirect("/home");
 });
@@ -78,34 +120,74 @@ app.get("/browse", (req, res) => {
 });
 
 app.get("/rooms", (req, res) => {
-  res.json([
-    { id: 1, name: "Room #1", owner: "Marek", players: 3 },
-    { id: 2, name: "Room #2", owner: "Teodor", players: 8 },
-    { id: 3, name: "Room #3", owner: "Antek", players: 1 },
-  ]);
+  const mappedRooms = Object.values(rooms).map(
+    ({ id, name, owner, players }) => ({
+      id,
+      name,
+      owner,
+      players: players.length,
+    })
+  );
+  res.json(mappedRooms);
 });
 
+app.get("/room", (req, res) => {
+  res.json(rooms[req.query.id]);
+});
+
+app.post("/roomCreate", (req, res) => {
+  const id = roomsId++;
+  const name = req.body.roomName ? req.body.roomName : `Room#${id}`;
+  roomCreate(id, name);
+  res.json({ id });
+});
+
+//SOCKET
+
 io.on("connection", (socket) => {
-  clientsOutputs[socket.id] = "";
-  console.log("Device connected " + socket.id);
+  socket.on("user_join", (roomId) => {
+    const id = playerId++;
+    console.log(roomId);
+    console.log("User joined to room: ", socket.id);
+    playerCreate(socket.id, `Player#${id}`, roomId);
+    roomAddPlayer(roomId, socket.id);
+    socket.join(roomId);
+    socket.emit("text", rooms[roomId].text);
+  });
 
   socket.on("output", (val) => {
-    const output = clientsOutputs[socket.id];
-    clientsOutputs[socket.id] = mapKey(val, output);
-    socket.emit("output", clientsOutputs[socket.id]);
+    const roomId = players[socket.id].room;
+    const output = players[socket.id].text;
+    players[socket.id].text = mapKey(val, output);
+    socket.emit("output", players[socket.id].text);
 
-    if (clientsOutputs[socket.id] === currentText) {
-      for (const client in clientsOutputs) clientsOutputs[client] = "";
-      const res = "";
-      io.emit("lose", socket.id);
-      socket.emit("win", res);
-      clearInterval(textInterval);
-      textInterval = textIntervalGenerator(delay);
+    if (players[socket.id].text === rooms[roomId].text) {
+      for (const playerId of rooms[roomId].players) {
+        players[playerId].text = "";
+      }
+      io.to(roomId).emit("lose", players[socket.id].name);
+      socket.emit("win");
+      clearInterval(rooms[roomId].textInterval);
+      rooms[roomId].textInterval = textIntervalGenerator(
+        roomId,
+        textGenerator,
+        delay
+      );
     }
   });
 
   socket.on("disconnect", () => {
-    clientsOutputs[socket.id] = null;
+    const roomId = players[socket.id] && players[socket.id].room;
+    if (roomId) {
+      rooms[roomId].players = rooms[roomId].players.filter(
+        (id) => id !== socket.id
+      );
+      delete players[socket.id];
+      if (Object.keys(rooms[roomId].length === 0)) {
+        clearInterval(rooms[roomId].textInterval);
+        delete rooms[roomId];
+      }
+    }
   });
 });
 

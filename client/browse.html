@@ -18,29 +18,48 @@
         border: 0px solid black;
         text-align: center;
       }
+      th,
+      td {
+        min-width: 80px;
+      }
     </style>
   </head>
   <body>
-    <h3>List of rooms:</h3>
-    <table id="roomsTable">
-      <thead>
-        <tr>
-          <td>#</td>
-          <td>Name</td>
-          <td>Owner</td>
-          <td>Players</td>
-          <td></td>
-        </tr>
-      </thead>
-      <tbody id="roomsTableBody"></tbody>
-    </table>
+    <div id="toggleDark" class="themeDot"></div>
+    <div class="center">
+      <div class="top">
+        <h2>Create new room:</h2>
+        <input
+          class="defaultInput"
+          type="text"
+          id="roomName"
+          placeholder="Set room's name"
+        />
+        <button id="createRoomBtn" class="defaultBtn">Create Room!</button>
+        <hr />
+        <h3>List of rooms:</h3>
+        <table id="roomsTable">
+          <thead>
+            <tr>
+              <td>#</td>
+              <td>Name</td>
+              <td>Owner</td>
+              <td>Players</td>
+              <td>Action</td>
+            </tr>
+          </thead>
+          <tbody id="roomsTableBody"></tbody>
+        </table>
+        <hr />
+      </div>
+    </div>
 
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"
       integrity="sha512-VZ6m0F78+yo3sbu48gElK4irv2dzPoep8oo9LEjxviigcnnnNvnTOJRSrIhuFk68FMLOpiNz+T77nNY89rnWDg=="
       crossorigin="anonymous"
     ></script>
-
+    <script src="./scripts/themes.js"></script>
     <script src="./scripts/animations.js"></script>
     <script>
       //API
@@ -48,8 +67,23 @@
         const res = await axios("/rooms");
         return res.data;
       }
+      async function joinRoom(id) {
+        window.location.assign(`/game?id=${id}`);
+      }
+      async function createRoom(roomName) {
+        const { data } = await axios.post("/roomCreate", { roomName });
+        console.log(data);
+        if (data.id !== undefined) joinRoom(data.id);
+        else console.error(data.error);
+      }
       //REFERENCES
       const roomsTableBody = document.querySelector("tbody#roomsTableBody");
+      const createRoomBtn = document.querySelector("#createRoomBtn");
+      const roomName = document.querySelector("#roomName");
+      //EVENTS
+      createRoomBtn.addEventListener("click", (e) => {
+        createRoom(roomName.value);
+      });
 
       window.onload = async () => {
         const rooms = await getRooms();
@@ -57,12 +91,12 @@
         const rows = rooms
           .map(
             (room) =>
-              `<tr>${Object.values(room)
-                .map((v) => `<td>${v}</td>`)
-                .join("")}</tr>`
+              `<tr>${[
+                ...Object.values(room).map((v) => `<td>${v}</td>`),
+                `<td><button class="defaultBtn" name="${room.id}" onclick="joinRoom(${room.id})">Join!</button></td>`,
+              ].join("")}</tr>`
           )
           .join("");
-
         roomsTableBody.innerHTML = rows;
       };
     </script>

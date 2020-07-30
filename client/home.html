@@ -29,7 +29,7 @@
     </style>
   </head>
   <body class="">
-    <button id="toggleDark">Toggle Dark Theme</button>
+    <div id="toggleDark" class="themeDot"></div>
     <div class="container">
       <div class="content">
         <h2 class="title" id="title"></h2>
@@ -43,10 +43,16 @@
           method="GET"
         >
           <!-- <input id="nicknameInput" name="nickname" type="text" /> -->
-          <input id="nicknameSubmit" type="submit" value="Let's play!" />
+          <input
+            class="defaultBtn"
+            id="nicknameSubmit"
+            type="submit"
+            value="Let's play!"
+          />
         </form>
       </div>
     </div>
+    <script src="./scripts/themes.js"></script>
     <script src="./scripts/animations.js"></script>
     <script>
       //CONSTANTS
@@ -55,14 +61,9 @@
       //FLAGS
 
       //REFERENCES
-      const body = document.querySelector("body");
-      const darkBtn = document.querySelector("button#toggleDark");
       const title = document.querySelector("h2#title");
 
       //EVENTS
-      darkBtn.addEventListener("click", (e) => {
-        body.classList.toggle("dark");
-      });
 
       //SOCKETS
       const socket = io();
