@@ -158,29 +158,31 @@ io.on("connection", (socket) => {
   });
 
   socket.on("output", (val) => {
-    const roomId = players[socket.id].room;
-    const output = players[socket.id].text;
-    players[socket.id].text = mapKey(val, output);
-    socket.emit("output", players[socket.id].text);
+    if (players[socket.id]) {
+      const roomId = players[socket.id].room;
+      const output = players[socket.id].text;
+      players[socket.id].text = mapKey(val, output);
+      socket.emit("output", players[socket.id].text);
 
-    if (players[socket.id].text === rooms[roomId].text) {
-      for (const playerId of rooms[roomId].players) {
-        players[playerId].text = "";
+      if (players[socket.id].text === rooms[roomId].text) {
+        for (const playerId of rooms[roomId].players) {
+          players[playerId].text = "";
+        }
+        io.to(roomId).emit("lose", players[socket.id].name);
+        socket.emit("win");
+        clearInterval(rooms[roomId].textInterval);
+        rooms[roomId].textInterval = textIntervalGenerator(
+          roomId,
+          textGenerator,
+          delay
+        );
       }
-      io.to(roomId).emit("lose", players[socket.id].name);
-      socket.emit("win");
-      clearInterval(rooms[roomId].textInterval);
-      rooms[roomId].textInterval = textIntervalGenerator(
-        roomId,
-        textGenerator,
-        delay
-      );
     }
   });
 
   socket.on("disconnect", () => {
     const roomId = players[socket.id] && players[socket.id].room;
-    if (roomId) {
+    if (roomId && rooms[roomId]) {
       rooms[roomId].players = rooms[roomId].players.filter(
         (id) => id !== socket.id
       );
