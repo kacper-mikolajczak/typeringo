@@ -146,13 +146,15 @@ app.post("/roomCreate", (req, res) => {
 
 io.on("connection", (socket) => {
   socket.on("user_join", (roomId) => {
-    const id = playerId++;
-    console.log(roomId);
-    console.log("User joined to room: ", socket.id);
-    playerCreate(socket.id, `Player#${id}`, roomId);
-    roomAddPlayer(roomId, socket.id);
-    socket.join(roomId);
-    socket.emit("text", rooms[roomId].text);
+    if (rooms[roomId]) {
+      const id = playerId++;
+      playerCreate(socket.id, `Player#${id}`, roomId);
+      roomAddPlayer(roomId, socket.id);
+      socket.join(roomId);
+      socket.emit("text", rooms[roomId].text);
+    } else {
+      socket.emit("undefinedUrl");
+    }
   });
 
   socket.on("output", (val) => {

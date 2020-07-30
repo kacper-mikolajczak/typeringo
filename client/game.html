@@ -73,6 +73,7 @@
           $("#messages").append(`<li>${msg}</li>`);
         });
         socket.on("text", (text) => {
+          console.log("Recived txt");
           $("#gameoverInfo").html("");
           $("#text").html(text);
           $("#output").html("");
@@ -97,7 +98,9 @@
             .split("=")[1];
         }
         socket.emit("user_join", getIdFromSearchParams());
-
+        socket.on("undefinedUrl", () => {
+          window.location.assign("/home");
+        });
         //EVENTS
         $(document).on("keydown", (e) => {
           if (isValidKey(e.key)) socket.emit("output", e.key);
