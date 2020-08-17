@@ -1,6 +1,8 @@
-# typeringo
+# Typeringo - 
+###### Ready? Aim... Type!
+
 Type fast, type precise, type to win
 
-Very very very(!) basic clone of TypeRacer
+Basic clone of TypeRacer I made during internship
 
 Have fun :)
