@@ -1,4 +1,4 @@
-# Typeringo - 
+# Typeringo
 ###### Ready? Aim... Type!
 
 Type fast, type precise, type to win
