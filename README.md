@@ -1,4 +1,4 @@
-# Typeringo
+# Typeringo - [Play it!](https://typeringoo.herokuapp.com)
 ###### Ready? Aim... Type!
 
 Type fast, type precise, type to win
