@@ -3,6 +3,7 @@ const theme = localStorage.getItem("theme");
 
 //REFERENCES
 const body = document.querySelector("body");
+if(theme) body.classList.add(theme);
 const darkBtn = document.querySelector("#toggleDark");
 
 //EVENTS
